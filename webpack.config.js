@@ -9,10 +9,12 @@ const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-// const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-
 const HappyPack = require('happypack');
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+
+
+
 
 console.log('===========================');
 pro ? console.log('生产环境') : console.log('开发环境');
@@ -24,7 +26,7 @@ let resolve = dir => {
   return path.join(__dirname,dir);
 };
 
-console.log('------编译开始！！------');
+console.log('------编译开始！------');
 
 let plugs = [
   // new ProgressBarPlugin({
@@ -53,21 +55,30 @@ let plugs = [
     id:'babel',
     loaders: ['babel-loader?cacheDirectory']
   }),
-  new HappyPack({
-    id:'css',
-    loaders: [
-      'css-loader',
-      'less-loader',
-      'sass-loader'
-    ]
-  }),
-  new HappyPack({
-    id:'file',
-    loaders: ['file-loader?limit=10000&name=[md5:hash:base64:10].[ext]']
-  }),
+  // new HappyPack({
+  //   id:'css',
+  //   loaders: [
+  //     'css-loader',
+  //     'less-loader',
+  //     'sass-loader'
+  //   ]
+  // }),
+  // new HappyPack({
+  //   id:'file',
+  //   loaders: [
+  //     {
+  //       loader :'file-loader',
+  //       options: {
+  //         limit: 1,
+  //         name: 'img/[name].[hash:7].[ext]'
+  //       }
+  //     }
+  //   ]
+  // }),
   new HtmlWebpackPlugin({
     filename: 'index.html',
-    template: resolve('src/index.html')
+    template: resolve('src/index.html'),
+    inject: true
   }),
   // new webpack.DefinePlugin({
   //   'process.env': {
@@ -75,8 +86,9 @@ let plugs = [
   //   }
   // })
   new MiniCssExtractPlugin({
-    filename: pro ? '[name].css' : '[name].[hash].css',
-    chunkFilename: pro ? '[id].css' : '[id].[hash].css'
+    filename: pro ? 'css/[name].css' : 'css/[name].[hash].css',
+    // filename: 'css/[name].[hash].css',
+    // chunkFilename: pro ? 'css/[id].css' : 'css/[id].[hash].css'
   }),
   new webpack.HashedModuleIdsPlugin()
 ];
@@ -86,8 +98,19 @@ if(pro) {
 
   plugs = [
     ...plugs,
-    new UglifyJSPlugin(),
-    new CleanWebpackPlugin(resolve('dist'))
+    // new UglifyJSPlugin(),
+    new CleanWebpackPlugin(resolve('dist')),
+    new OptimizeCssAssetsPlugin({
+      assetNameRegExp: /\.css$/g,
+      cssProcessor: require('cssnano'),
+      cssProcessorOptions: {
+        // discardComments: {
+        //     removeAll: true
+        // }
+        discardComments : false
+      },
+      canPrint: true
+    })
 
   ]
 
@@ -95,9 +118,10 @@ if(pro) {
 }
 
 module.exports = {
-  devtool: pro ? 'cheap-module-source-map' : 'inline-source-map',
+  // devtool: pro ? 'cheap-' : 'inline-source-map',
+  // devtool: 'inline-source-map',
   entry: {
-    app: pro? [
+    app: pro ? [
       'babel-polyfill',
       resolve('src/index.js')
     ] : [
@@ -107,37 +131,48 @@ module.exports = {
     ],
     // vendor: ['react', 'react-router-dom', 'redux', 'react-dom', 'react-redux']
   },
-  output: {
+  output: pro ? {
     path: resolve('./dist'),
-    filename: pro ? '[name].[chunkhash].js' : '[name].[hash].js',
-    chunkFilename: '[name].[chunkhash].js',
-    publicPath: pro ? '/' : `http://localhost:${devPort}/`
+    filename: 'js/[name].[chunkhash].js',
+    chunkFilename: 'js/[name].[chunkhash].js',
+    publicPath: './'
+  } : {
+    path: resolve('./dist'),
+    filename: 'js/[name].[hash].js'
   },
   module: {
     rules: [
+      // {
+      //   test: /\.(js|jsx)$/,
+      //   use: ['happypack/loader?id=babel'],
+      //   exclude: /node_modules/,
+      //   include: resolve('src')
+      // },
       {
-        test: /\.(js|jsx)$/,
-        use: ['happypack/loader?id=babel'],
+        test: /\.js$/,
+        use: ['babel-loader?cacheDirectory=true'],
         exclude: /node_modules/,
         include: resolve('src')
       },
       {
         test: /\.(css|less|scss)$/,
         use: [
-          'style-loader',
+          'style-loader' ,
           MiniCssExtractPlugin.loader,
-          {
-            loader:'happypack/loader?id=css'
-          },
+          'css-loader',
+          'less-loader',
+          'sass-loader',
           {
             loader: 'postcss-loader',
             options: {
               ident: 'postcss',
               plugins: (loader) => [
-                // require('postcss-import')({ root: loader.resourcePath }),
-                // require('postcss-cssnext')(),
+                require('postcss-import')({ root: loader.resourcePath }),
+                require('postcss-cssnext')(),
                 require('autoprefixer')(),
-                // require('cssnano')()
+                // require('cssnano')({
+                //   preset: 'default'
+                // })
               ]
             }
           }
@@ -146,8 +181,15 @@ module.exports = {
         include: resolve('src')
       },
       {
-        test: /\.(png|jpg|jpeg|gif|md)$/,
-        use: ['happypack/loader?id=file'],
+        test: /\.(png|jpe?g|gif|svg|md)(\?.*)?$/,
+        use: [{
+          loader: 'url-loader',
+          options: {
+            limit: 10000,
+            name: 'img/[name].[hash:7].[ext]'
+          }
+        }],
+        // use: ['happypack/loader?id=file'],
         exclude: /node_modules/,
         include: resolve('src')
       }
@@ -178,6 +220,12 @@ module.exports = {
           name: 'vendor',
           priority: 10
         },
+        // styles: {
+        //   name: 'styles',
+        //   test: /\.(css|less|scss)$/,
+        //   chunks: 'all',
+        //   enforce: true
+        // },
         // page1:{
         //   name: 'page1',
         //   chunks: 'initial',
@@ -211,17 +259,20 @@ module.exports = {
   //   }
   // },
   devServer: {
+    clientLogLevel: 'warning',
     historyApiFallback: true,
     // noInfo: true,
     // inline: true,
-    contentBase: resolve('./dist'),
-    port: devPort,
+    // contentBase: resolve('./dist'),
+    contentBase: false,
+    compress: true,
+    port: devPort || 3000,
     host: '0.0.0.0',
     // socket: 'socket',
     stats: 'minimal',
     // useLocalIp: true,
-    // watchOptions: {
-    //   POLL:true
-    // }
+    watchOptions: {
+      POLL:true
+    }
   }
 };
