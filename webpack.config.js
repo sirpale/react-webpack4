@@ -55,28 +55,8 @@ let plugs = [
     id:'babel',
     loaders: ['babel-loader?cacheDirectory']
   }),
-  // new HappyPack({
-  //   id:'css',
-  //   loaders: [
-  //     'css-loader',
-  //     'less-loader',
-  //     'sass-loader'
-  //   ]
-  // }),
-  // new HappyPack({
-  //   id:'file',
-  //   loaders: [
-  //     {
-  //       loader :'file-loader',
-  //       options: {
-  //         limit: 1,
-  //         name: 'img/[name].[hash:7].[ext]'
-  //       }
-  //     }
-  //   ]
-  // }),
   new HtmlWebpackPlugin({
-    filename: 'index.html',
+    filename: pro ? 'views/index.html' : 'index.html',
     template: resolve('src/index.html'),
     inject: true
   }),
@@ -119,12 +99,8 @@ if(pro) {
 
 module.exports = {
   // devtool: pro ? 'cheap-' : 'inline-source-map',
-  // devtool: 'inline-source-map',
   entry: {
-    app: pro ? [
-      'babel-polyfill',
-      resolve('src/index.js')
-    ] : [
+    app: [
      'react-hot-loader/patch',
       'babel-polyfill',
       resolve('src/index.js')
@@ -135,21 +111,17 @@ module.exports = {
     path: resolve('./dist'),
     filename: 'js/[name].[chunkhash].js',
     chunkFilename: 'js/[name].[chunkhash].js',
-    publicPath: './'
+    publicPath: '../'
   } : {
     path: resolve('./dist'),
-    filename: 'js/[name].[hash].js'
+    filename: 'js/[name].[hash].js',
+    publicPath: '/'
   },
   module: {
     rules: [
-      // {
-      //   test: /\.(js|jsx)$/,
-      //   use: ['happypack/loader?id=babel'],
-      //   exclude: /node_modules/,
-      //   include: resolve('src')
-      // },
       {
-        test: /\.js$/,
+        test: /\.(js|jsx)$/,
+        // use: ['happypack/loader?id=babel'],
         use: ['babel-loader?cacheDirectory=true'],
         exclude: /node_modules/,
         include: resolve('src')
@@ -169,7 +141,7 @@ module.exports = {
               plugins: (loader) => [
                 require('postcss-import')({ root: loader.resourcePath }),
                 require('postcss-cssnext')(),
-                require('autoprefixer')(),
+                // require('autoprefixer')(),
                 // require('cssnano')({
                 //   preset: 'default'
                 // })
@@ -177,11 +149,11 @@ module.exports = {
             }
           }
         ],
-        exclude: /node_modules/,
-        include: resolve('src')
+        // exclude: /node_modules/,
+        // include: resolve('src')
       },
       {
-        test: /\.(png|jpe?g|gif|svg|md)(\?.*)?$/,
+        test: /\.(png|jpe?g|gif)(\?.*)?$/,
         use: [{
           loader: 'url-loader',
           options: {
@@ -192,7 +164,47 @@ module.exports = {
         // use: ['happypack/loader?id=file'],
         exclude: /node_modules/,
         include: resolve('src')
+      },
+      {
+        test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
+        loader: 'url-loader?limit=10000&mimetype=application/font-woff',
+        options: {
+          limit:10000,
+          name:'fonts/[name].[ext]'
+        }
+      },
+      {
+        test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
+        loader: 'url-loader?limit=10000&mimetype=application/octet-stream',
+        options: {
+          limit:10000,
+          name:'fonts/[name].[ext]'
+        }
+      },
+      {
+        test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
+        loader: 'file-loader',
+        options: {
+          limit:10000,
+          name:'fonts/[name].[ext]'
+        }
+      },
+      {
+        test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+        loader: 'url-loader?limit=10000&mimetype=image/svg+xml',
+        options: {
+          limit:10000,
+          name:'fonts/[name].[ext]'
+        }
       }
+      // {
+      //   test: /.(woff|woff2|eot|ttf|otf)(\?v=[0-9]\.[0-9]\.[0-9])?$$/,
+      //   loader: 'file-loader',
+      //   options: {
+      //     limit:10000,
+      //     name:'fonts/[name].[hash:7].[ext]'
+      //   }
+      // }
     ]
   },
   resolve: {
@@ -263,8 +275,8 @@ module.exports = {
     historyApiFallback: true,
     // noInfo: true,
     // inline: true,
-    // contentBase: resolve('./dist'),
-    contentBase: false,
+    contentBase: resolve('./dist/views'),
+    // contentBase: false,
     compress: true,
     port: devPort || 3000,
     host: '0.0.0.0',

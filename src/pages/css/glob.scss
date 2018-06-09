@@ -1,0 +1,79 @@
+@import url(mixin.scss);
+
+
+
+body {
+  background:#f0f0f0;
+  font-size: px2rem(16px);
+}
+
+ul.nav {
+  border-top:1px solid #ddd;
+  width:100%;
+  display: flex;
+  position:fixed;
+  left:0;
+  bottom:0;
+  background:#fff;
+  justify-content: space-between;
+  align-items:center;
+  -webkit-box-pack: justify;
+  padding:4px 20px;
+  z-index:1001;
+
+  li {
+    //line-height:px2rem(30px);
+    a {
+      display:block;
+      text-align:center;
+      span {font-size:px2rem(22px);}
+      p {font-size:px2rem(12px);}
+
+    }
+
+  }
+}
+
+.logo {
+  display:block;
+  text-align: center;
+  background:#fff;
+  padding:px2rem(10px);
+  img {
+    width:px2rem(138px);
+    height:px2rem(44px);
+  }
+
+}
+
+.container {
+  background:#fff;
+  margin:px2rem(20px);
+  padding:px2rem(20px);
+  font-size:px2rem(20px);
+  transition: all .5s ease-in-out;
+  //animation: fa .5s ease-in-out;
+  color:#00f;
+  img{
+    width:100%;
+  }
+
+}
+
+
+@keyframes fa {
+  0% {
+    transform: scale(2);
+  }
+  50% {
+    transform: scale(3);
+  }
+  100% {
+    transform: scale(2);
+  }
+}
+
+button {
+  padding: px2rem(4px) px2rem(6px);
+  font-size:px2rem(16px);
+}

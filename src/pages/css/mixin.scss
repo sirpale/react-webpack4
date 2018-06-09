@@ -1,0 +1,9 @@
+$version: '1.0.0';
+
+$width: 5em;
+$fontSize: 20px;
+
+@function px2rem($px) {
+  $rem: 37.5px;
+  @return ($px/$rem) + rem;
+}

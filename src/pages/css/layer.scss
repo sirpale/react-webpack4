@@ -1,0 +1,15 @@
+.wrap {
+  display:flex;
+  justify-content: space-between;
+  flex-flow:row wrap;
+  li {
+    width:20%;
+    margin:10px;
+    background:red;
+    a {color:#fff;padding:4px 6px;}
+    &:empty {
+      height:0;
+      border:none;
+    }
+  }
+}

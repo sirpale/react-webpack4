@@ -6,6 +6,28 @@ import store from './redux/store';
 
 import getRouter from './router/router';
 
+
+import './pages/css/reset.scss';
+import './pages/css/glob.scss';
+
+let htmlFontSize = () => {
+  let htmlWidth = document.documentElement.clientWidth || document.body.clientWidth;
+  let htmlDOM = document.getElementsByTagName('html')[0];
+
+  htmlDOM.style.fontSize = htmlWidth / 10 + 'px';
+
+
+  window.addEventListener('resize',(e) => {
+    let w = document.documentElement.clientWidth || document.body.clientWidth;
+    htmlDOM.style.fontSize = w / 10 + 'px';
+  });
+};
+
+
+
+
+htmlFontSize();
+
 let renderWithHotReload = RootElement => {
  ReactDom.render(
    <AppContainer>
@@ -25,6 +47,9 @@ if(module.hot) {
     renderWithHotReload(getRouter());
   });
 }
+
+
+
 
 
 
