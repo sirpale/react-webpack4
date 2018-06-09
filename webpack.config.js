@@ -3,14 +3,19 @@ const webpack = require('webpack');
 
 const pro = process.env.NODE_ENV === 'production';
 
+const chalk = require('chalk');
+
+const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+// const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
+const HappyPack = require('happypack');
 
 console.log('===========================');
-console.log(pro);
+pro ? console.log('生产环境') : console.log('开发环境');
 console.log('===========================');
 
 const devPort = 3000;
@@ -19,7 +24,47 @@ let resolve = dir => {
   return path.join(__dirname,dir);
 };
 
+console.log('------编译开始！！------');
+
 let plugs = [
+  // new ProgressBarPlugin({
+  //   format: '  build [:bar] ' + chalk.green.bold(':percent') + ' (:elapsed seconds)',
+  //   clear: false
+  // }),
+  new ProgressBarPlugin({
+    format : 'build [:bar]' +'(:msg)'+ chalk.green.bold(':percent') + ' (:elapsed seconds)',    //:bar :current :total :elapsed :percent :msg
+    // width : 100,
+    complete : '***',
+    // incomplete : '',
+    // renderThrottle : 16,
+    clear : false,
+    callback : function () {
+      console.log('------编译完成！------');
+      console.log('http://localhost:'+devPort);
+    }
+    // stream : 'stderr',
+    // summary : true,
+    // summaryContent : false,
+    // customSummary : function () {
+    //
+    // }
+  }),
+  new HappyPack({
+    id:'babel',
+    loaders: ['babel-loader?cacheDirectory']
+  }),
+  new HappyPack({
+    id:'css',
+    loaders: [
+      'css-loader',
+      'less-loader',
+      'sass-loader'
+    ]
+  }),
+  new HappyPack({
+    id:'file',
+    loaders: ['file-loader?limit=10000&name=[md5:hash:base64:10].[ext]']
+  }),
   new HtmlWebpackPlugin({
     filename: 'index.html',
     template: resolve('src/index.html')
@@ -29,6 +74,10 @@ let plugs = [
   //     'NODE_ENV': JSON.stringify('production')
   //   }
   // })
+  new MiniCssExtractPlugin({
+    filename: pro ? '[name].css' : '[name].[hash].css',
+    chunkFilename: pro ? '[id].css' : '[id].[hash].css'
+  }),
   new webpack.HashedModuleIdsPlugin()
 ];
 
@@ -38,11 +87,8 @@ if(pro) {
   plugs = [
     ...plugs,
     new UglifyJSPlugin(),
-    new CleanWebpackPlugin(resolve('dist')),
-    new ExtractTextPlugin({
-      filename: 'css/[name].[hash:5].css',
-      allChunks: true
-    })
+    new CleanWebpackPlugin(resolve('dist'))
+
   ]
 
 
@@ -71,22 +117,37 @@ module.exports = {
     rules: [
       {
         test: /\.(js|jsx)$/,
-        use: ['babel-loader?cacheDirectory=true'],
+        use: ['happypack/loader?id=babel'],
         exclude: /node_modules/,
         include: resolve('src')
       },
       {
         test: /\.(css|less|scss)$/,
-        use: ExtractTextPlugin.extract({
-          fallback: "style-loader",
-          use: ['css-loader','less-loader','sass-loader']
-        }),
+        use: [
+          'style-loader',
+          MiniCssExtractPlugin.loader,
+          {
+            loader:'happypack/loader?id=css'
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              ident: 'postcss',
+              plugins: (loader) => [
+                // require('postcss-import')({ root: loader.resourcePath }),
+                // require('postcss-cssnext')(),
+                require('autoprefixer')(),
+                // require('cssnano')()
+              ]
+            }
+          }
+        ],
         exclude: /node_modules/,
         include: resolve('src')
       },
       {
         test: /\.(png|jpg|jpeg|gif|md)$/,
-        use: ['file-loader?limit=10000&name=[md5:hash:base64:10].[ext]'],
+        use: ['happypack/loader?id=file'],
         exclude: /node_modules/,
         include: resolve('src')
       }
@@ -117,11 +178,11 @@ module.exports = {
           name: 'vendor',
           priority: 10
         },
-        page1:{
-          name: 'page1',
-          chunks: 'initial',
-          minSize:0
-        }
+        // page1:{
+        //   name: 'page1',
+        //   chunks: 'initial',
+        //   minSize:0
+        // }
       }
     }
   },
@@ -155,6 +216,12 @@ module.exports = {
     // inline: true,
     contentBase: resolve('./dist'),
     port: devPort,
-    host: '0.0.0.0'
+    host: '0.0.0.0',
+    // socket: 'socket',
+    stats: 'minimal',
+    // useLocalIp: true,
+    // watchOptions: {
+    //   POLL:true
+    // }
   }
 };
