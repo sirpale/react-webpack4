@@ -39,6 +39,7 @@ ul.nav {
   text-align: center;
   background:#fff;
   padding:px2rem(10px);
+  border-bottom: 1px solid #e6e6e6;
   img {
     width:px2rem(138px);
     height:px2rem(44px);
@@ -48,8 +49,8 @@ ul.nav {
 
 .container {
   background:#fff;
-  margin:px2rem(20px);
-  padding:px2rem(20px);
+  //margin:px2rem(10px) 0;
+  padding:px2rem(10px) px2rem(10px) px2rem(40px) px2rem(10px);
   font-size:px2rem(20px);
   transition: all .5s ease-in-out;
   //animation: fa .5s ease-in-out;
