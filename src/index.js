@@ -10,23 +10,19 @@ import getRouter from './router/router';
 import './pages/css/reset.scss';
 import './pages/css/glob.scss';
 
-let htmlFontSize = () => {
-  let htmlWidth = document.documentElement.clientWidth || document.body.clientWidth;
-  let htmlDOM = document.getElementsByTagName('html')[0];
+let htmlFontSize = (doc => {
+  let htmlWidth = doc.documentElement.clientWidth || doc.body.clientWidth;
+  let htmlDOM = doc.getElementsByTagName('html')[0];
 
   htmlDOM.style.fontSize = htmlWidth / 10 + 'px';
 
 
   window.addEventListener('resize',(e) => {
-    let w = document.documentElement.clientWidth || document.body.clientWidth;
+    let w = doc.documentElement.clientWidth || doc.body.clientWidth;
     htmlDOM.style.fontSize = w / 10 + 'px';
   });
-};
+})(document);
 
-
-
-
-htmlFontSize();
 
 let renderWithHotReload = RootElement => {
  ReactDom.render(
