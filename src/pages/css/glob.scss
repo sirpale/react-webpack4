@@ -7,7 +7,7 @@ body {
   font-size: px2rem(16px);
 }
 
-ul.nav {
+.nav {
   border-top:1px solid #ddd;
   width:100%;
   display: flex;
@@ -21,15 +21,11 @@ ul.nav {
   padding:4px 20px;
   z-index:1001;
 
-  li {
-    //line-height:px2rem(30px);
-    a {
-      display:block;
-      text-align:center;
-      span {font-size:px2rem(22px);}
-      p {font-size:px2rem(12px);}
-
-    }
+  a {
+    display:block;
+    text-align:center;
+    span {display:block;font-size:px2rem(22px);}
+    em {font-size:px2rem(12px);}
 
   }
 }
@@ -73,8 +69,12 @@ ul.nav {
     transform: scale(2);
   }
 }
-
+/*
 button {
   padding: px2rem(4px) px2rem(6px);
   font-size:px2rem(16px);
+}
+)*/
+.ant-card {
+  margin:px2rem(10px) 0;
 }

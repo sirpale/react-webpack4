@@ -1,4 +1,8 @@
 import React, {Component} from 'react';
+import {
+  Button,
+  BackTop
+} from 'antd';
 import {connect} from 'react-redux';
 import {getUserInfo} from 'actions/userInfo';
 
@@ -36,13 +40,18 @@ class UserInfo extends Component {
 
     return (
       <div className="list-img">
-        <button onClick={() => this.props.getUserInfo()}>随机获取</button>
+        <Button onClick={() => this.props.getUserInfo()}>随机获取</Button>
         {
           isLoading ? <p style={{'padding':'10px 0'}}>请求信息中......</p> :
             (
               errorMsg ? errorMsg: htmlList(userInfo)
             )
         }
+
+        <BackTop />
+        Scroll down to see the bottom-right
+        <strong style={{ color: 'rgba(64, 64, 64, 0.6)' }}> gray </strong>
+        button.
 
       </div>
     )

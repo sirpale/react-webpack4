@@ -1,4 +1,6 @@
 import React, {Component} from 'react';
+import {Button} from 'antd';
+
 import {increment, decrement, reset} from 'actions/counter';
 
 import {connect} from 'react-redux';
@@ -28,9 +30,9 @@ class Counter extends Component {
     return (
       <div>
         <div className="">当前计数为：{this.props.counter.count}</div>
-        <button onClick={() => this.props.increment()}>自增</button>
-        <button onClick={() => this.props.decrement()}>自减</button>
-        <button onClick={() => this.props.reset()}>重置</button>
+        <Button onClick={() => this.props.increment()}>自增</Button>
+        <Button onClick={() => this.props.decrement()}>自减</Button>
+        <Button onClick={() => this.props.reset()}>重置</Button>
       </div>
     )
   }
